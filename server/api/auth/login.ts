@@ -16,16 +16,20 @@ export default defineEventHandler(async (event) => {
 
   const {
     auth: {
-      user: { name: STORED_NAME, password: STORED_PASSWORD },
+      user: { name: STORED_NAME_RAW, password: STORED_PASSWORD_RAW },
     },
   } = useRuntimeConfig();
 
-  if (!STORED_NAME || !STORED_PASSWORD) {
+  if (!STORED_NAME_RAW || !STORED_PASSWORD_RAW) {
     throw createError({
       statusCode: 500,
       statusMessage: "Internal Server Error",
     });
   }
+
+  // normalise the stored data to a string
+  const STORED_NAME = STORED_NAME_RAW.toString();
+  const STORED_PASSWORD = STORED_PASSWORD_RAW.toString();
 
   const isAuthentificated =
     secureCompare(username, STORED_NAME) &&
