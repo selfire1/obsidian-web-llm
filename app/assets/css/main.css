@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .max-w-prose {
+    max-width: 65ch;
+  }
+}
+
+@layer components {
+  .is-container {
+    --padding: 1rem;
+    --max-width: 1024px;
+
+    width: min(var(--max-width), 100% - (var(--padding) * 2));
+    @apply mx-auto;
+  }
+}

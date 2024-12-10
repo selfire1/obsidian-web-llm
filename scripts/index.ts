@@ -1,9 +1,10 @@
 import { readdir } from "node:fs/promises";
 import type { InputNote } from "../types";
-import { addNote, getQueryResponse } from "./api";
+import { addNote } from "./api";
 import graymatter from "gray-matter";
 
 const upsertNotes = async () => {
+  // TODO: Clear database first, or only update new notes
   const obsidianDirectory = await readdir(Bun.env.OBSIDIAN_PATH, {
     recursive: true,
   });
@@ -17,8 +18,11 @@ const upsertNotes = async () => {
     const file = Bun.file(filePath);
     const text = await file.text();
     const { data: _frontmatter, content } = graymatter(text);
-    const title = filePathFromRoot.split("/").slice(-1)[0].replace(".md", "");
-    if ([content, title, filePathFromRoot].some((x) => !x)) {
+    const title = filePathFromRoot
+      ?.split("/")
+      ?.slice(-1)?.[0]
+      ?.replace(".md", "");
+    if (!content || !title || !filePathFromRoot) {
       // skip items without text, title or filepath
       continue;
     }
@@ -33,16 +37,4 @@ const upsertNotes = async () => {
   }
 };
 
-const queryNotes = async () => {
-  const query = prompt("Enter query:");
-  if (!query) {
-    console.log("Please provide a query.");
-    return;
-  }
-
-  console.time("query");
-  const _answer = await getQueryResponse(query);
-  console.timeEnd("query");
-};
-
-await queryNotes();
+await upsertNotes();
