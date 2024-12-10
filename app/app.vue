@@ -1,3 +1,4 @@
 <template lang="pug">
-NuxtWelcome
+.is-container.py-2
+  pre Hello world
 </template>
