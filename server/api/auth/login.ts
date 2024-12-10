@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
   }
 
   setResponseStatus(event, 200);
-  return "All good";
+  return "You're in"; // TODO: Issue JWT
 });
 
 function secureCompare(a: string, b: string) {
