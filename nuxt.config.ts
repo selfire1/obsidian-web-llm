@@ -1,3 +1,5 @@
+import type { password } from "bun";
+
 const siteConfig = {
   title: "My nuxt app",
   description: "",
@@ -19,6 +21,20 @@ export default defineNuxtConfig({
     description: "", // TODO: description
     defaultLocale: "en-au",
     indexable: false, // TODO: Mark as indexable
+  },
+  runtimeConfig: {
+    api: {
+      baseurl: "",
+      user: "",
+      password: "",
+    },
+    auth: {
+      user: {
+        name: "",
+        password: "",
+      },
+      secretkey: "",
+    },
   },
   // seo
   ogImage: {
