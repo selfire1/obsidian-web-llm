@@ -20,6 +20,22 @@ const submitHandler = async (event: Event) => {
       })
     responseMsg.value = JSON.stringify(fetchResponse, null, 2)
     target.reset();
+    if (useRoute().query.redirect) {
+      await navigateTo(useRoute().query.redirect as string)
+    }
+  } catch (e) {
+    errorMsg.value = (e as FetchError)?.data
+  }
+}
+
+const getSecret = async () => {
+  try {
+    const fetchResponse = await $fetch(
+      "/api/secret/test",
+      {
+        method: "GET",
+      })
+    responseMsg.value = JSON.stringify(fetchResponse, null, 2)
   } catch (e) {
     errorMsg.value = (e as FetchError)?.data
   }
@@ -28,6 +44,9 @@ const submitHandler = async (event: Event) => {
 
 <template lang="pug">
 .is-container.py-2.space-y-10
+  template(v-if="$route.query.redirect")
+    pre You need to log in first.
+
   form(@submit.prevent="submitHandler")
     label Username
       input(type="text" name="username" autocomplete="username" required)
@@ -37,4 +56,5 @@ const submitHandler = async (event: Event) => {
   div
     pre response: {{ responseMsg }}
     pre error: {{ errorMsg }}
+    button(@click="getSecret") Get secret
 </template>

@@ -15,6 +15,7 @@
     "@nuxt/image": "^1.8.1",
     "@nuxtjs/seo": "^2.0.0-rc.23",
     "@nuxtjs/tailwindcss": "^6.12.2",
+    "jose": "^5.9.6",
     "nuxt": "^3.13.2",
     "pug": "^3.0.3",
     "vue": "latest"

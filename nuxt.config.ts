@@ -23,11 +23,17 @@ export default defineNuxtConfig({
     indexable: false, // TODO: Mark as indexable
   },
   runtimeConfig: {
+    api: {
+      baseurl: "",
+      user: "",
+      password: "",
+    },
     auth: {
       user: {
         name: "",
         password: "",
       },
+      secretkey: "",
     },
   },
   // seo

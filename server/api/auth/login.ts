@@ -1,4 +1,6 @@
-import crypto from "crypto";
+import * as jose from "jose";
+import { JWT_TOKEN_COOKIE_NAME } from "~~/server/consts";
+import { getAreCredentialsValid } from "~~/server/utils";
 
 export default defineEventHandler(async (event) => {
   assertMethod(event, "POST");
@@ -7,35 +9,13 @@ export default defineEventHandler(async (event) => {
   const username = formData.get("username")?.toString();
   const password = formData.get("password")?.toString();
 
-  if (!username || !password) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Bad Request",
-    });
-  }
-
   const {
-    auth: {
-      user: { name: STORED_NAME_RAW, password: STORED_PASSWORD_RAW },
-    },
+    auth: { secretkey: SECRET_KEY },
   } = useRuntimeConfig();
 
-  if (!STORED_NAME_RAW || !STORED_PASSWORD_RAW) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Internal Server Error",
-    });
-  }
+  const isValidCredentials = getAreCredentialsValid(username, password);
 
-  // normalise the stored data to a string
-  const STORED_NAME = STORED_NAME_RAW.toString();
-  const STORED_PASSWORD = STORED_PASSWORD_RAW.toString();
-
-  const isAuthentificated =
-    secureCompare(username, STORED_NAME) &&
-    secureCompare(password, STORED_PASSWORD);
-
-  if (!isAuthentificated) {
+  if (!isValidCredentials) {
     throw createError({
       statusCode: 401,
       statusMessage: "Unauthorized",
@@ -43,14 +23,18 @@ export default defineEventHandler(async (event) => {
   }
 
   setResponseStatus(event, 200);
-  return "You're in"; // TODO: Issue JWT
-});
 
-function secureCompare(a: string, b: string) {
-  if (a.length !== b.length) {
-    return false;
-  }
-  const uint8a = new TextEncoder().encode(a);
-  const uint8b = new TextEncoder().encode(b);
-  return crypto.timingSafeEqual(uint8a, uint8b);
-}
+  const payload = {
+    name: username,
+    password,
+  };
+
+  const jwt = await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("10m")
+    .sign(new TextEncoder().encode(SECRET_KEY));
+
+  setCookie(event, JWT_TOKEN_COOKIE_NAME, jwt, { httpOnly: true });
+  return;
+});
